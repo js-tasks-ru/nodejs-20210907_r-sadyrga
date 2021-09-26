@@ -8,14 +8,15 @@ class LimitSizeStream extends stream.Transform {
     this.writtenFileSize = 0;
   }
 
-  async _transform(chunk) {
+  _transform(chunk, encoding, callback) {
     this.writtenFileSize = this.writtenFileSize + chunk.length;
 
-    if (this.fileSizeLimit < this.writtenFileSize) {
-      throw new LimitExceededError();
-    }
-
-    await this.push(chunk);
+    callback(
+      this.fileSizeLimit < this.writtenFileSize ?
+        new LimitExceededError() :
+        null,
+      chunk,
+    );
   }
 }
 
